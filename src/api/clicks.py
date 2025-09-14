@@ -10,7 +10,7 @@ from src.services.click import ClickService
 
 router = APIRouter(
     prefix="/clicks",
-    tags=["Clicks, Stats 📈"],  # , dependencies=[Depends(get_active_user)
+    tags=["Clicks, Stats"],
 )
 
 
