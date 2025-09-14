@@ -17,7 +17,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
-    # One-to-many: User → Links
+    # One-to-many: User -> Links
     links: Mapped[List["Link"]] = relationship(  # type: ignore
         back_populates="user", cascade="all, delete-orphan"
     )

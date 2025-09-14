@@ -6,6 +6,9 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from .base import Base
 from datetime import datetime, timezone
+from src.config import get_settings
+
+settings = get_settings()
 
 
 class Link(Base):
@@ -22,9 +25,13 @@ class Link(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
-    # Many-to-one: Links → User
+    # Many-to-one: Links -> User
     user: Mapped["User"] = relationship(back_populates="links")  # type: ignore
-    # One-to-many: Link → Clicks
+    # One-to-many: Link -> Clicks
     clicks: Mapped[List["Click"]] = relationship(  # type: ignore
         back_populates="link", cascade="all, delete-orphan"
     )
+
+    @property
+    def short_url(self) -> str:
+        return f"{settings.base_url}/r/{self.short_code}"
