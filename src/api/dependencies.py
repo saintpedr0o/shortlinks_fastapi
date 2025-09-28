@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db import get_session
+from src.db import async_session_factory
 from src.exceptions import ExpiredTokenError, InvalidTokenError, UserNotFoundException
 from src.models.user import User
 from src.repositories.click import ClickRepository
@@ -20,7 +20,7 @@ bearer_scheme = HTTPBearer()
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async for session in get_session():
+    async with async_session_factory() as session:
         yield session
 
 
