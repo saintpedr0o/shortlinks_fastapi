@@ -34,4 +34,5 @@ class Link(Base):
 
     @property
     def short_url(self) -> str:
-        return f"{settings.base_url}/r/{self.short_code}"
+        prefix_part = f"/{settings.redirect_prefix}" if settings.redirect_prefix else ""
+        return f"{settings.base_url}{prefix_part}/{self.short_code}"

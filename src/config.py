@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     app_name: str = "ShortlinksAPI"
     debug: bool = Field(..., env="DEBUG")
 
+    # prefix for shortlink redirects, e.g. URLs will look like http://host/r/<code>
+    # set in the format "<str>"
+    # if prefix is "" - shortlink look like http://host/<code>
+    redirect_prefix: str = "r"
+
     # JWT
     secret_key: str = Field(..., env="SECRET_KEY")
     algorithm: str = Field(..., env="ALGORITHM")

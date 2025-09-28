@@ -84,7 +84,7 @@ SHORT_CODE_LENGTH=6 # 6 - best option
 # FastAPI / server settings
 HOST=0.0.0.0
 PORT=8000
-# if you deploy u must use base url
+# if deploying BASE_URL must NOT end with a trailing slash
 # BASE_URL=https://yourdomain.com
 
 # Development mode
