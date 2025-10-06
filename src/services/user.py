@@ -15,7 +15,7 @@ from src.schemas.user import UserCreate
 
 class UserService:
     def __init__(self, user_repository: UserRepository):
-        self.user_repository = user_repository
+        self._user_repository = user_repository
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -27,9 +27,9 @@ class UserService:
         self, db: AsyncSession, login: str, password: str
     ) -> User:
         if "@" in login:
-            user = await self.user_repository.get_by_email(db, login)
+            user = await self._user_repository.get_by_email(db, login)
         else:
-            user = await self.user_repository.get_by_username(db, login)
+            user = await self._user_repository.get_by_username(db, login)
 
         if not user:
             raise UserNotFoundException("User not found")
@@ -40,7 +40,7 @@ class UserService:
         return user
 
     async def get_user_by_id(self, db: AsyncSession, user_id: uuid.UUID) -> User:
-        user = await self.user_repository.get_by_id(db, user_id)
+        user = await self._user_repository.get_by_id(db, user_id)
         if not user:
             raise UserNotFoundException(f"User with id '{user_id}' not found")
         return user
@@ -59,15 +59,15 @@ class UserService:
         if is_superuser is not None:
             filters["is_superuser"] = is_superuser
 
-        users = await self.user_repository.get_list_objs(
+        users = await self._user_repository.get_list_objs(
             db=db, skip=skip, limit=limit, **filters
         )
         return users or []
 
     async def register_user(self, db: AsyncSession, user_in: UserCreate) -> User:
-        if await self.user_repository.get_by_username(db, user_in.username):
+        if await self._user_repository.get_by_username(db, user_in.username):
             raise UserAlreadyExistsException("User with this username already exists")
-        if await self.user_repository.get_by_email(db, user_in.email):
+        if await self._user_repository.get_by_email(db, user_in.email):
             raise UserAlreadyExistsException("User with this email already exists")
 
         hashed_password = bcrypt.hashpw(
@@ -80,7 +80,7 @@ class UserService:
             email=user_in.email,
             hashed_password=hashed_password,
         )
-        return await self.user_repository.create_obj(db, user)
+        return await self._user_repository.create_obj(db, user)
 
     async def update_user(
         self,
@@ -100,12 +100,12 @@ class UserService:
         for field, value in update_data.items():
             setattr(db_user, field, value)
 
-        await self.user_repository.update_obj(db, db_user)
+        await self._user_repository.update_obj(db, db_user)
         return db_user
 
     async def deactivate_user(self, db: AsyncSession, db_user: User) -> None:
         db_user.is_active = False
-        await self.user_repository.update_obj(db, db_user)
+        await self._user_repository.update_obj(db, db_user)
 
     async def delete_user(self, db: AsyncSession, user: User) -> None:
-        await self.user_repository.delete_obj(db, user)
+        await self._user_repository.delete_obj(db, user)

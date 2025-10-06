@@ -21,3 +21,6 @@ class User(Base):
     links: Mapped[List["Link"]] = relationship(  # type: ignore
         back_populates="user", cascade="all, delete-orphan"
     )
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(  # type: ignore
+        back_populates="user", cascade="all, delete-orphan"
+    )

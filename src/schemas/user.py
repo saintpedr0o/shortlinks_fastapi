@@ -15,11 +15,11 @@ class UserCreate(BaseUser):
 class UserLogin(BaseModel):
     login: str | EmailStr = Field(
         ...,
-        example="Username or email",
+        json_schema_extra={"example": "Username or email"},
     )
     password: str = Field(
         ...,
-        example="mypassword123",
+        json_schema_extra={"example": "mypassword123"},
     )
 
 

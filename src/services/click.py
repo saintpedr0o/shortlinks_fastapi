@@ -13,7 +13,7 @@ from user_agents import parse
 
 class ClickService:
     def __init__(self, click_repository: ClickRepository):
-        self.click_repository = click_repository
+        self._click_repository = click_repository
 
     async def register_click(self, db, link_id, ip_address, user_agent, referrer):
         click = Click(
@@ -22,7 +22,7 @@ class ClickService:
             user_agent=user_agent,
             referrer=referrer,
         )
-        return await self.click_repository.create_obj(db, click)
+        return await self._click_repository.create_obj(db, click)
 
     async def get_link_clicks(
         self,
@@ -33,7 +33,7 @@ class ClickService:
         limit: int,
     ) -> List[Click]:
 
-        clicks = await self.click_repository.get_clicks_list(
+        clicks = await self._click_repository.get_clicks_list(
             db, user_id=user_id, link_id=link_id, skip=skip, limit=limit
         )
         if not clicks:
@@ -61,7 +61,7 @@ class ClickService:
                 <= datetime.combine(date_to, datetime.max.time(), tzinfo=timezone.utc)
             )
 
-        total_clicks = await self.click_repository.aggregate_records(
+        total_clicks = await self._click_repository.aggregate_records(
             db=db, column=Click.id, filters=filters
         )
 
@@ -73,19 +73,19 @@ class ClickService:
             Click.clicked_at <= datetime.combine(today, time.max, tzinfo=timezone.utc),
         ]
 
-        today_clicks = await self.click_repository.aggregate_records(
+        today_clicks = await self._click_repository.aggregate_records(
             db=db, column=Click.id, filters=today_filters
         )
 
-        unique_ips = await self.click_repository.aggregate_records(
+        unique_ips = await self._click_repository.aggregate_records(
             db=db, column=Click.user_agent, filters=filters, distinct_flag=True
         )
 
-        unique_referrers = await self.click_repository.aggregate_records(
+        unique_referrers = await self._click_repository.aggregate_records(
             db=db, column=Click.referrer, filters=filters, distinct_flag=True
         )
 
-        top_referrers = await self.click_repository.aggregate_records(
+        top_referrers = await self._click_repository.aggregate_records(
             db=db,
             column=Click.referrer,
             filters=filters,
@@ -94,7 +94,7 @@ class ClickService:
             limit=5,
             key="referrer",
         )
-        brows = await self.click_repository.aggregate_records(
+        brows = await self._click_repository.aggregate_records(
             db=db,
             column=Click.user_agent,
             filters=filters,
@@ -141,7 +141,7 @@ class ClickService:
                 <= datetime.combine(date_to, datetime.max.time(), tzinfo=timezone.utc)
             )
 
-        clicks_by_period = await self.click_repository.aggregate_records(
+        clicks_by_period = await self._click_repository.aggregate_records(
             db,
             column=func.date_trunc("day", Click.clicked_at).label("period"),
             filters=filters,

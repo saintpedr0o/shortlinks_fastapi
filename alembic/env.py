@@ -8,12 +8,12 @@ from sqlalchemy.engine import Connection
 from alembic import context
 
 from src.config import get_settings
-from src.models import Base, User, Link, Click
+from src.models import Base, RefreshToken, User, Link, Click
 
 
 config = context.config
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url.unicode_string())
+config.set_main_option("sqlalchemy.url", settings.db_url_str)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

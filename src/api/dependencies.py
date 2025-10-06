@@ -1,22 +1,25 @@
 import uuid
 from typing import AsyncGenerator
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.db import async_session_factory
+from src.config import get_settings
+from src.db import get_engine, get_session_factory
 from src.exceptions import ExpiredTokenError, InvalidTokenError, UserNotFoundException
 from src.models.user import User
+from src.repositories.auth import AuthRepository
 from src.repositories.click import ClickRepository
 from src.repositories.link import LinkRepository
 from src.repositories.user import UserRepository
-from src.services.auth import auth_service
+from src.services.auth import AuthService
 from src.services.click import ClickService
 from src.services.link import LinkService
 from src.services.user import UserService
 
 bearer_scheme = HTTPBearer()
+settings = get_settings()
+engine = get_engine()
+async_session_factory = get_session_factory(engine)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -36,10 +39,15 @@ async def get_click_service() -> ClickService:
     return ClickService(ClickRepository())
 
 
+async def get_auth_service() -> AuthService:
+    return AuthService(AuthRepository())
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db=Depends(get_db),
     user_service: UserService = Depends(get_user_service),
+    auth_service: AuthService = Depends(get_auth_service),
 ) -> User:
     token = credentials.credentials
 
