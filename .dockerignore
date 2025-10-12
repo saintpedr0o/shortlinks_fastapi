@@ -1,4 +1,5 @@
-__pycache__/
+.pytest_cache/
+_pycache__/
 *.pyc
 *.pyo
 *.pyd

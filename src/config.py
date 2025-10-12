@@ -1,41 +1,49 @@
 from functools import lru_cache
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import PostgresDsn, Field
+from pydantic import PostgresDsn
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=os.getenv("ENV_FILE", ".env"),
+        extra="ignore",
+        env_file_encoding="utf-8",
+    )
+
     app_name: str = "ShortlinksAPI"
-    debug: bool = Field(..., env="DEBUG")
+    debug: bool = False  # default value; will be loaded from .env if present
 
     # prefix for shortlink redirects, e.g. URLs will look like http://host/r/<code>
-    # set in the format "<str>"
     # if prefix is "" - shortlink look like http://host/<code>
     redirect_prefix: str = "r"
 
     # JWT
-    secret_key: str = Field(..., env="SECRET_KEY")
-    algorithm: str = Field(..., env="ALGORITHM")
-    access_token_expire_minutes: int = Field(..., env="ACCESS_TOKEN_EXPIRE_MINUTES")
-    refresh_secret_key: str = Field(..., env="REFRESH_SECRET_KEY")
-    refresh_token_expire_days: int = Field(..., env="REFRESH_TOKEN_EXPIRE_DAYS")
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+    refresh_secret_key: str
+    refresh_token_expire_days: int
 
-    host: str = Field("0.0.0.0", env="HOST")
-    port: int = Field(8000, env="PORT")
-    base_url: str = Field("0.0.0.0", env="BASE_URL")
+    host: str = "0.0.0.0"
+    port: int = 8000
+    base_url: str = "0.0.0.0"
 
-    short_code_length: int = Field(..., env="SHORT_CODE_LENGTH")
+    short_code_length: int
 
-    enable_tracking: bool = Field(True, env="ENABLE_TRACKING")
-    log_ip_address: bool = Field(True, env="LOG_IP_ADDRESS")
-    log_user_agent: bool = Field(True, env="LOG_USER_AGENT")
-    log_referrer: bool = Field(True, env="LOG_REFERRER")
+    enable_tracking: bool = True
+    log_ip_address: bool = True
+    log_user_agent: bool = True
+    log_referrer: bool = True
 
-    database_url: PostgresDsn = Field(..., env="DATABASE_URL")
+    postgres_user: str
+    postgres_password: str
+    postgres_db: str
 
-    model_config = SettingsConfigDict(env_file=".env")
+    database_url: PostgresDsn
 
     @property
-    def db_url_str(self) -> str:
+    def db_url_str(self):
         return str(self.database_url)
 
 
